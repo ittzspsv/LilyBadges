@@ -103,7 +103,7 @@ async def remove_role_badge(ctx: commands.Context, role_id: int):
     except Exception as e:
         await ctx.reply("An Unknown Error Occured!", delete_after=7)
 
-@commands.cooldown(type=commands.BucketType.user, rate=5)
+@commands.cooldown(rate=1, per=5, type=commands.BucketType.user)
 @bot.hybrid_command(name="role_list", description="List all roles with their respective badges")
 async def role_list(ctx: commands.Context) -> None:
     try:
@@ -124,7 +124,7 @@ async def role_list(ctx: commands.Context) -> None:
     except Exception as e:
         await ctx.reply("An Unknown Error Occured!", delete_after=7)
 
-@commands.cooldown(type=commands.BucketType.user, rate=5)
+@commands.cooldown(rate=1, per=5, type=commands.BucketType.user)
 @bot.hybrid_command(name="latency", description="Shows the network ping of the bot")
 async def latency(ctx: commands.Context) -> None:
     await ctx.send(f'`{round(bot.latency * 1000, 2)}ms`')
