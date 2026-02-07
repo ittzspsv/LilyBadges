@@ -77,17 +77,35 @@ class LilyMain(commands.Bot):
 bot = LilyMain()
 
 @commands.has_permissions(administrator=True)
-@bot.hybrid_command(name="add_role_emoji", description="Add a role emoji to a role")
-async def add_role_emoji(ctx: commands.Context, role: discord.Role, icon: str) -> None:
+@bot.hybrid_command(name="add_role_badge", description="Add a role emoji to a role")
+async def add_role_badge(ctx: commands.Context, role: discord.Role, icon: str) -> None:
     try:
-        await bot.db.execute("INSERT INTO roles (guild_id, role_id, role_emoji) VALUES (?, ?, ?)", (ctx.guild.id, role.id, icon))
+
+        #Check if the role already exists
+        cursor = await bot.db.execute("SELECT role_emoji FROM roles WHERE role_id = ?", (role.id))
+        row = await cursor.fetchone()
+        if row:
+            await bot.db.execute("UPDATE roles SET role_emoji = ? WHERE role_id = ?", (icon, role,id))
+            await ctx.reply("Emoji badge Updated successfully")
+        else:
+            await bot.db.execute("INSERT INTO roles (guild_id, role_id, role_emoji) VALUES (?, ?, ?)", (ctx.guild.id, role.id, icon))
+            await ctx.reply("Emoji Badge Added Successfully!")
+    except Exception as e:
+        await ctx.reply("An Unknown Error Occured!", delete_after=7)
+    await bot.db.commit()
+
+@commands.has_permissions(administrator=True)
+async def remove_role_badge(ctx: commands.Context, role_id: int):
+    try:
+        await bot.db.execute("DELETE FROM roles WHERE role_id = ?", (role_id))
         await bot.db.commit()
-        await ctx.reply("Emoji Updated")
+        await ctx.reply("Role badge removed successfully!")
     except Exception as e:
         await ctx.reply("An Unknown Error Occured!", delete_after=7)
 
 @commands.cooldown(type=commands.BucketType.user, rate=5)
-async def role_list(ctx: commands.Context):
+@bot.hybrid_command(name="role_list", description="List all roles with their respective badges")
+async def role_list(ctx: commands.Context) -> None:
     try:
         role_ids: str = 'None'
         role_emojis: str = 'None'
@@ -105,6 +123,11 @@ async def role_list(ctx: commands.Context):
 
     except Exception as e:
         await ctx.reply("An Unknown Error Occured!", delete_after=7)
+
+@commands.cooldown(type=commands.BucketType.user, rate=5)
+@bot.hybrid_command(name="latency", description="Shows the network ping of the bot")
+async def latency(ctx: commands.Context) -> None:
+    await ctx.send(f'`{round(bot.latency * 1000, 2)}ms`')
 
 
 @bot.event
