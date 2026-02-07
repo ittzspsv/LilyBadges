@@ -17,7 +17,7 @@ class LilyMain(commands.Bot):
     async def setup_hook(self):
         await self.tree.sync()
 
-        self.db = sqlite.connect("storage.db")
+        self.db = await sqlite.connect("storage.db")
 
         # Schema design.
         await self.db.execute("CREATE TABLE IF NOT EXISTS roles (guild_id INTEGER, role_id INTEGER, role_emoji TEXT)")
@@ -137,7 +137,7 @@ async def on_command_error(ctx: commands.Context, error: commands.CommandError) 
     pass
 
 async def main():
-    await bot.start("YOUR_BOT_TOKEN")
+    await bot.start("token")
 
 if __name__ == "__main__":
     asyncio.run(main())
